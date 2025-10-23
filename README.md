@@ -1,5 +1,5 @@
-# gNBS ELSI Policy Navigator
-A tool for implementers of genomic sequencing for newborn screening to navigate ethical, legal, and social issues.
+# GA4GH gNBS ELSI Policy Navigator
+A GA4GH tool for implementers of genomic sequencing for newborn screening to navigate ethical, legal, and social issues.
 
 # Welcome to the ELSI Navigator
 
