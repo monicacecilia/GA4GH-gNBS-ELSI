@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gNBS ELSI Policy Navigator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF CDN for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for accordion and tabs */
+        .tab-button.active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #3b82f6;
+        }
+        .category-button.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 1000px; /* arbitrary large value */
+        }
+        /* Confirmation Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 90%;
+            max-width: 400px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-box {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-4">
+            <h1 class="text-3xl font-bold text-blue-600">gNBS ELSI Policy Navigator</h1>
+            <p class="mt-1 text-gray-600">A tool for implementers of genomic sequencing for newborn screening to navigate ethical, legal, and social issues.</p>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="container mx-auto px-6 flex">
+            <button class="tab-button text-gray-500 font-semibold py-4 px-6 border-b-2 border-transparent transition active" data-target="introduction">Introduction</button>
+            <button class="tab-button text-gray-500 font-semibold py-4 px-6 border-b-2 border-transparent transition" data-target="strategic-questions">Strategic Questions</button>
+            <button class="tab-button text-gray-500 font-semibold py-4 px-6 border-b-2 border-transparent transition" data-target="decision-points">Decision Points Navigator</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-6">
+
+        <!-- 1. Introduction Tab -->
+        <section id="introduction" class="tab-content bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Welcome to the ELSI Navigator</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2 text-blue-600">The Why</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Newborn screening (NBS) programs are a public health program designed to identify newborns who would benefit from pre-symptomatic treatment. Many research projects and pilot studies around the world are currently assessing the integration of genomic sequencing into NBS programs (gNBS).
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mt-4">
+                        Any entity seeking to implement gNBS – as research projects, pilot programs, or full implementation — needs to engage with a wide variety of ethical, legal, and social implications (ELSI) in order to successfully deliver benefits to screened newborns and their families whilst also mitigating possible harms. Indeed, successful navigation of ELSI is vital to building public trust in gNBS and also to maintaining existing public trust in newborn screening.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2 text-blue-600">The What</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        This tool sets out the decision points with significant ELSI components relevant to gNBS implementers. “Implementers” include those who are designing and implementing research projects, pilot studies, or actual deployment.
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mt-4">
+                        The tool serves two purposes. First, to help implementers identify, assess, and address ELSI, and second, to provide a framework by which implementers can capture key choices made and their rationale, in a format that facilitates comparison, learning and common evaluative metrics between programs.
+                    </s_p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Strategic Questions Tab -->
+        <section id="strategic-questions" class="tab-content hidden">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Strategic Questions to Guide Decision Making</h2>
+            <p class="mb-6 text-gray-600">Implementers should first address the following key questions about project alignment with future deployment of gNBS, as these insights help guide subsequent decision-making.</p>
+            <div id="strategic-questions-container" class="space-y-4">
+                <!-- Strategic questions will be injected here by JS -->
+            </div>
+        </section>
+
+        <!-- 3. Decision Points Tab -->
+        <section id="decision-points" class="tab-content hidden">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Navigating Decision Points</h2>
+            
+            <!-- EXPORT CONTROLS -->
+            <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Export & Data Management</h3>
+                <p class="text-sm text-gray-600 mb-4">Save your notes as a TSV/PDF, or clear all notes from your browser.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button id="export-tsv" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
+                        Export Notes to TSV
+                    </button>
+                    <button id="export-pdf" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition">
+                        Export Report to PDF
+                    </button>
+                    <button id="clear-notes" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition">
+                        Clear All Notes
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Left: Category Navigation -->
+                <aside class="md:w-1/4">
+                    <div class="sticky top-24">
+                        <h3 class="text-lg font-semibold mb-3 text-gray-700">Categories</h3>
+                        <nav id="category-list" class="flex flex-col space-y-2">
+                            <!-- Category buttons will be injected here by JS -->
+                        </nav>
+                    </div>
+                </aside>
+                <!-- Right: Decision Points Content -->
+                <div id="decision-points-container" class="md:w-3/4 space-y-6">
+                    <!-- Decision points will be injected here by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="clear-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Are you sure?</h3>
+            <p class="text-gray-600 mb-6">This will permanently delete all your saved notes from this browser. This action cannot be undone.</p>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-clear" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">
+                    Cancel
+                </button>
+                <button id="confirm-clear" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+                    Yes, Clear All Notes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // --- DATA FROM THE GOOGLE DOCUMENT ---
+
+        const strategicQuestions = [
+            // ... existing data ...
+            {
+                question: "What is the overall vision for how potential implementation of gNBS will integrate with conventional NBS?",
+                considerations: "There are several different possible visions, which are often not distinguished in the literature. One vision, for example, is to deploy sequencing like any other testing technology, utilizing parameters as similar as possible to existing NBS programs (no changes to consent or data storage, and no re-interrogation of data later in life planned). Another vision is to offer gNBS as an optional additional test—separately consented—within conventional NBS. Other visions are possible, and what is feasible will depend on many jurisdiction-specific considerations, including regulatory requirements, the nature of the health system, and current NBS practices."
+            },
+            {
+                question: "What consent process, if any, is envisioned for any potential deployment of gNBS, and how does this relate to how conventional NBS is implemented?",
+                considerations: "The answer to this question may be constrained by regulatory and other requirements, and should be informed by existing evidence and recommendations, and likely by stakeholder engagement. Different scenarios exist depending on whether conventional NBS involves explicit consent or not, and whether gNBS is combined or offered separately. Evidence from various regions (e.g., Canada, UK) suggests public views can differ based on these models, data storage, and secondary uses."
+            },
+            {
+                question: "How will the use of genomic data be different from the use of conventional NBS data?",
+                considerations: "Residual dried blood spots and the data generated during conventional NBS are stored and reused for retesting, quality assurance, and test development. ... Genomic data has the potential to be interrogated more than conventional NBS data, as the data are much more extensive. The issue of identifiability becomes more pressing with genomic data. The question of data reuse is tied to the question of consent for NBS."
+            },
+            {
+                question: "Will there be the opportunity to screen/re-test the same children again in the future?",
+                considerations: "In some jurisdictions, typically those with publicly-funded healthcare systems, a longitudinal relationship with participants/patients is possible. In others, this would be the exception. This is relevant because some of the conditions that could be screened for in gNBS do not become actionable until later in childhood or in adulthood. An alternative... would be to re-interrogate the data as the child ages, or, to re-sample and re-sequence at a later time point."
+            },
+            {
+                question: "If the implementation effort is a research project or pilot study, what evidence does it need to generate in order to inform deployment decisions?",
+                considerations: "Integrating gNBS has the potential to identify many more children who may benefit from early intervention. ... Pilot studies lay the groundwork for a successful and scalable program... Research projects provide the evidence and justification... The success of either turns on whether it generates data that support wider deployment. Establishing clarity on exactly which data are needed to inform deployment will in turn inform the approach to ELSI."
+            },
+            {
+                question: "Who does data need to be shared with to maximize the positive impact on future children screened?",
+                considerations: "Because gNBS will identify children with very rare diseases, the ability to share data — and particularly clinical outcome data — across projects and jurisdictions will accelerate the field and potential health benefits. This can be enabled by upfront consideration of how best to do this within regulatory and other constraints."
+            }
+        ];
+
+        const decisionPointsData = [
+            // ... existing data ...
+            {
+                category: "A. Stakeholder Engagement",
+                id: "stakeholder",
+                points: [
+                    { id: "A1", decision_point: "1. How should the perspectives and preferences of families, both with and without children with rare genetic conditions, and from varied backgrounds, be included in program design?", summary: "Implementation of genomic newborn screening programs requires meaningful engagement with a range of diverse families and stakeholders to ensure programs are culturally appropriate, equitable, and meet community needs. Current evidence indicates significant limitations in representation... This suggests a need for more inclusive approaches like community review boards and consultations..." },
+                    { id: "A2", decision_point: "2. How should the voice of the child be incorporated in program design?", summary: "The literature extensively discusses the ethical tension between parental proxy decision-making and preserving the child's future autonomy... A key challenge is balancing the potential benefits of early detection... against the child's right to an open future..." },
+                    { id: "A3", decision_point: "3. How should the perspectives of the general public be included in program design?", summary: "Public engagement in gNBS program design is crucial for maintaining trust, ensuring acceptability, and achieving high participation rates. Evidence suggests that public perspectives can evolve through deliberative processes... Implementers should... consider using multiple engagement approaches..." },
+                    { id: "A4", decision_point: "4. How should healthcare providers be included in design to ensure implementation feasibility?", summary: "Healthcare provider involvement in gNBS design is crucial for successful implementation, with evidence indicating that providers have more cautious attitudes than the public and face significant challenges around workforce capacity, knowledge gaps, and workflow integration." },
+                    { id: "A5", decision_point: "5. How should policy-makers be included in design to help assess feasibility and optimize implementation?", summary: "Policy-maker involvement... is essential for addressing systemic barriers, ensuring adequate infrastructure, and aligning programs with health system priorities and regulatory frameworks. Implementers must engage policy-makers early in design..." },
+                    { id: "A6", decision_point: "6. Should commercial/industry partners be involved in program design, and if so, how should conflicts be managed?", summary: "Commercial involvement... presents both opportunities (accelerating therapeutic development...) and significant risks (equity concerns, conflicts of interest, data privacy...). The literature emphasizes the need for careful oversight and governance structures..." }
+                ]
+            },
+            {
+                category: "B. Consent Models",
+                id: "consent",
+                points: [
+                    { id: "B7", decision_point: "7. If the study is a research project, will there be a separate research and clinical consent?", summary: "The literature suggests significant tension between research and clinical care paradigms... Key considerations include whether combining... could reduce participation rates and burden on parents, versus whether separate consent processes are needed..." },
+                    { id: "B8", decision_point: "8. When will consent be obtained?", summary: "The timing of consent... presents a critical tension between obtaining truly informed parental decisions and maintaining program feasibility. Key considerations include balancing the emotional and practical challenges of the immediate postpartum period... with most literature suggesting that prenatal engagement... may be optimal." },
+                    { id: "B9", decision_point: "9. If conventional NBS uses a model of explicit consent, what are the considerations for making gNBS a separate versus combined consent?", summary: "The literature suggests that implementing gNBS may require a different consent model than conventional NBS, with many authors advocating for separate and more explicit consent processes for genomic testing and long-term storage of genomic data." },
+                    { id: "B10", decision_point: "10. If conventional NBS is not explicitly consented, what are the considerations for making gNBS explicitly consented versus not?", summary: "The literature reveals a fundamental tension between traditional newborn screening's opt-out approach... and arguments that genomic sequencing requires explicit informed consent due to its broader implications and uncertain benefits." },
+                    { id: "B11", decision_point: "11. What constitutes appropriate parent information resources for gNBS?", summary: "The literature extensively discusses the need for engagement materials that balance... clear, informative and accessible information... while avoiding information overload. Key considerations include the legal minimum requirements... timing of information delivery (preferably during pregnancy)..." },
+                    { id: "B12", decision_point: "12. Will consent be obtained for secondary uses of the data, and if so, how should this be obtained?", summary: "The literature shows widespread agreement... that explicit consent should be obtained for potential secondary uses of genomic data and dried bloodspots, including research... Key considerations include balancing research benefits with privacy protections..." },
+                    { id: "B13", decision_point: "13. How will withdrawals be handled, particularly for screen positive findings where there might be a duty of clinical care?", summary: "The handling of withdrawals... requires careful consideration of the tension between respecting parental autonomy and ensuring appropriate clinical care. Empirical evidence suggests that parents frequently change their minds... highlighting the need for flexible consent processes..." }
+                ]
+            },
+            {
+                category: "C. Which Conditions to Include",
+                id: "conditions",
+                points: [
+                    { id: "C14", decision_point: "14. What process (including who) is used to decide and update the condition list?", summary: "Deciding which conditions to include... requires balancing multiple stakeholder perspectives while maintaining transparent, evidence-based processes... Programs must establish clear criteria... and also have mechanisms to regularly update these lists..." },
+                    { id: "C15", decision_point: "15. How should advocacy influence be balanced with evidence-based decision making when it comes to condition selection?", summary: "Patient advocacy has historically been a powerful force... but there is ongoing tension between advocacy-driven expansion and evidence-based decision making. Implementers must balance the valuable perspectives... while ensuring that screening decisions remain grounded in scientific evidence..." },
+                    { id: "C16", decision_point: "16. How are \"actionability\" and clinical utility defined for condition selection (including considerations of availability and accessibility)?", summary: "Defining actionability and clinical utility... is a complex challenge that requires balancing traditional screening criteria... against broader conceptions of benefit... Implementers must carefully consider whether to maintain strict requirements for proven effective, available... treatments or adopt more flexible frameworks..." },
+                    { id: "C17", decision_point: "17. Should conditions with variable onset, penetrance, expressivity, or pleiotropy be included?", summary: "The inclusion of conditions with variable onset, penetrance, expressivity, or pleiotropy... represents one of the most extensively debated ethical issues... with concerns centering on the balance between identifying actionable conditions early versus potential increased uncertainty creating \"patients-in-waiting\"..." },
+                    { id: "C18", decision_point: "18. Should there be an age-of-actionability cut-off, and, if so, what should this be?", summary: "The literature reflects significant debate about whether and when to disclose genetic information about conditions that manifest or require intervention at different life stages... While traditional professional guidelines have recommended against testing children for adult-onset conditions... emerging arguments suggest potential benefits..." },
+                    { id: "C19", decision_point: "19. Should carrier status for recessive conditions be reported?", summary: "The reporting of carrier status... represents a complex balance between potential reproductive planning benefits for families and concerns about psychological harms, child autonomy, discrimination, and healthcare system burden. Key considerations include the very high prevalence of carrier variants..." },
+                    { id: "C20", decision_point: "20. Should there be any parental choice in categories of results returned?", summary: "The literature reveals significant debate around whether and how much choice parents should have... While there is broad agreement that parents should ideally have some degree of choice, there are differing views on the optimal approach - from highly granular choice to more structured \"menu\" options..." },
+                    { id: "C21", decision_point: "21. Should major pharmacogenetics variants be included?", summary: "The inclusion of pharmacogenetic variants... offers significant potential to prevent adverse drug reactions... but raises complex questions about clinical actionability in the newborn period... While there is strong theoretical support... the literature reveals a notable gap between conceptual benefits and practical implementation..." }
+                ]
+            },
+            {
+                category: "D. Testing & Lab Processes",
+                id: "testing",
+                points: [
+                    { id: "D22", decision_point: "22. Should whole genome, whole exome, targeted panel sequencing or genotyping be adopted?", summary: "The choice between whole genome sequencing (GS), whole exome sequencing (ES), or targeted gene panels represents a critical cost, technical and ethical trade-off... While GS/ES may offer greater flexibility... targeted approaches may currently be more practical and cost-effective..." },
+                    { id: "D23", decision_point: "23. What sample collection methodology should be used?", summary: "The choice of sample collection methodology... involves balancing technical feasibility (DNA quantity/quality) with practical and ethical considerations... The literature strongly supports using dried blood spots (DBS) as they leverage existing collection procedures..." },
+                    { id: "D24", decision_point: "24. How and when should test limitations be communicated?", summary: "The literature emphasizes that test limitations must be clearly communicated to both healthcare providers and families due to significant technical and interpretive challenges... The timing and method of communication needs to balance providing large amounts of information against overwhelming parents..." },
+                    { id: "D25", decision_point: "25. Should variants of uncertain significance ever be reported?", summary: "The reporting of variants of uncertain significance (VUS)... presents a critical tension between comprehensive detection of Sipotentially clinically significant variants and returning information that does not fit a screening paradigm. Implementers must weigh the benefits... against the risks of false positives, psychological impacts..." },
+                    { id: "D26", decision_point: "26. How should the challenges of variant interpretation across diverse populations be addressed?", summary: "Genomic variant interpretation faces significant challenges due to the lack of diversity in reference databases... This creates potential for missed diagnoses, false positive results, and/or misclassification of variants in underrepresented populations, raising serious equity concerns..." }
+                ]
+            },
+            {
+                category: "E. Results Disclosure",
+                id: "disclosure",
+                points: [
+                    { id: "E27", decision_point: "27. How should the process for disclosure of provisional results be managed?", summary: "The disclosure of provisional results... requires carefully balancing the potential benefits of early detection against the risks of causing unnecessary anxiety and harm through false positives or uncertain findings. Programs must develop clear protocols..." },
+                    { id: "E28", decision_point: "28. For positive results, who should deliver results?", summary: "The literature strongly suggests that result delivery should be tailored to the type of result and condition, with genetic counselors and clinical specialists generally preferred for complex genetic findings while maintaining involvement of primary care providers..." },
+                    { id: "E29", decision_point: "29. For positive results, how should return be done (including what information should be provided, whether virtual or in person)?", summary: "The return of positive results... requires careful consideration of both the mode of delivery (in-person vs remote) and the content/format of information provided. Implementation decisions must balance parents' strong preference for in-person result disclosure... against practical feasibility constraints..." },
+                    { id: "E30", decision_point: "30. For positive results, how can the psychological impacts on families be assessed, addressed and minimised...?", summary: "Psychological impacts of positive gNBS results... represent a major concern... with evidence indicating risks of anxiety, depression, parent-child bonding disruption... However, studies also show that with appropriate support systems... these negative impacts can be minimized..." },
+                    { id: "E31", decision_point: "31. For negative results, will results be returned, and if so, using what model?", summary: "The literature shows varying approaches to returning negative results... with some programs actively communicating these results while others only provide them upon request. Key considerations include balancing psychological benefits (such as providing peace of mind...) against healthcare system resource constraints..." },
+                    { id: "E32", decision_point: "32. How to build sufficient genomics expertise in the healthcare provider workforce...?", summary: "Healthcare providers often lack sufficient knowledge and confidence... with studies showing widespread discomfort in interpreting and communicating genomic results. A multi-faceted approach combining professional education, supportive infrastructure... is needed..." },
+                    { id: "E33", decision_point: "33. What should be done if a newborn dies before or soon after result return (including what should happen to their data)?", summary: "There is very little literature on this topic. When a newborn dies... programs need to consider both the immediate handling of genetic/metabolic data... and the broader implications for family members who might benefit from this information." }
+                ]
+            },
+            {
+                category: "F. Post-test Management",
+                id: "post-test",
+                points: [
+                    { id: "F34", decision_point: "34. What standards should be established for clinical follow-up after screening...?", summary: "Implementing gNBS requires establishing comprehensive standards for clinical follow-up... including genetic counseling, specialist referrals, and ongoing monitoring. The literature emphasizes that follow-up systems must integrate multiple stakeholders..." },
+                    { id: "F35", decision_point: "35. How should referral networks and other follow-up care infrastructure be developed...?", summary: "Healthcare systems currently lack sufficient infrastructure and workforce capacity... The literature emphasizes that comprehensive support systems that integrate specialized expertise are needed, as are multidisciplinary care teams..." },
+                    { id: "F36", decision_point: "36. Should the program plan for surveillance and follow up of positive findings, including those with later-onset conditions?", summary: "The literature extensively discusses the need for long-term follow-up... particularly for later-onset conditions, with broad agreement that comprehensive follow-up systems are essential but challenging to implement." },
+                    { id: "F37", decision_point: "37. To what extent should the program coordinate cascade testing, and if so to what degree relatives?", summary: "Cascade testing... raises complex ethical tensions between potential benefits to family members and issues of privacy, autonomy (e.g. right not to know), and healthcare access barriers." },
+                    { id: "F38", decision_point: "38. How should healthcare system disparities that affect follow-up care be addressed?", summary: "Health equity gaps in follow-up care represent a critical challenge... with concerns that without careful planning, gNBS could exacerbate existing inequities... Key considerations include ensuring adequate infrastructure and resources..." },
+                    { id: "F39", decision_point: "39. What aggregate outcomes data should the program plan to collect?", summary: "The literature emphasizes the critical importance of collecting comprehensive outcomes data to evaluate program effectiveness, advance scientific understanding of rare diseases, and support evidence-based policy decisions." }
+                ]
+            },
+            {
+                category: "G. Data Management",
+                id: "data-management",
+                points: [
+                    { id: "G40", decision_point: "40. What data should be stored on each baby (e.g., .fastq files, .bam files, .vcf files...)?", summary: "This decision presents trade-offs between maximizing future clinical utility... and managing practical constraints including storage costs, privacy risks, and data governance complexities. While storing raw sequence data... enables future reanalysis... implementers must balance this potential against substantial infrastructure requirements..." },
+                    { id: "G41", decision_point: "41. For how long should sequence data be maintained (legal minimum or longer)?", summary: "Long-term data storage... may have profound implications for a project’s/program’s costs, consent protocols, risks, and public acceptance. ... Implementers must carefully weigh the trade-offs between destroying data to protect privacy versus maintaining it for future clinical use..." },
+                    { id: "G42", decision_point: "42. Who will store the data and where will it be stored?", summary: "The storage of genomic data... raises significant technical, ethical, and legal challenges around data security, privacy protection, and long-term accessibility. Implementers must balance the clinical and research utility... against privacy risks, storage costs, and infrastructure requirements..." },
+                    { id: "G43", decision_point: "43. What security and privacy measures should be implemented to protect genomic data?", summary: "Implementing gNBS requires robust privacy and security measures to protect sensitive genetic data from unauthorized access, discrimination, and potential misuse by third parties... Key considerations include data storage infrastructure, access controls, encryption..." },
+                    { id: "G44", decision_point: "44. How will requests to delete data be managed?", summary: "The management of data deletion requests... involves balancing parental rights, future autonomy of the child, and public health benefits against privacy concerns... Programs must consider whether to allow parents and/or children to request data deletion..." },
+                    { id: "G45", decision_point: "45. Should parents or the child be able to access their data...?", summary: "The literature highlights a fundamental tension between parents' rights to access their children's genomic data and the child's future autonomy... Implementers must balance providing appropriate parental access... while protecting the child's future interests..." },
+                    { id: "G46", decision_point: "46. Will there be a process of transferring data ownership from the parents to the child?", summary: "The literature extensively discusses the ethical tension between parental proxy decision-making... and preserving the child's future autonomy... A key consideration... is developing mechanisms to transition control of genomic data from parents to children as they mature..." },
+                    { id: "G47", decision_point: "47. Who will the data be shared with, for which purposes...?", summary: "Data sharing decisions... must balance the critical need for international collaboration to advance rare disease research... against privacy concerns, potential misuse, and discrimination risks." },
+                    { id: "G48", decision_point: "48. Will there be any allowed secondary use of the data...?", summary: "Secondary use of newborn screening genomic data presents a fundamental tension between advancing scientific knowledge... and protecting individual privacy/autonomy. Implementers must carefully consider governance structures..." }
+                ]
+            },
+            {
+                category: "H. Data Revisiting",
+                id: "data-revisiting",
+                points: [
+                    { id: "H49", decision_point: "49. Should genomic data be periodically reanalyzed as knowledge that impacts variant interpretation advances...?", summary: "Periodic reanalysis of genomic data for symptomatic individuals is widely recognized as crucial... However, implementers must carefully weigh the potential benefits... against substantial resource requirements and challenges..." },
+                    { id: "H50", decision_point: "50. Should genomic data be periodically reanalyzed as the gene list changes...?", summary: "The literature related to symptomatic individuals strongly suggests that genomic data should be periodically reanalyzed as gene lists evolve... However, implementers must carefully consider whether this literature is relevant in the screening setting..." },
+                    { id: "H51", decision_point: "51. Should there be any planned disclosures of information that is relevant later in life?", summary: "The literature extensively discusses the ethical tension between providing potentially beneficial health information throughout life versus protecting the child's future autonomy and right not to know... A further key consideration is the extent to which information relevant later in life is ‘core business’ of NBS." },
+                    { id: "H52", decision_point: "52. Should the data be available for diagnostic purposes, if the child develops a phenotype?", summary: "The literature predominantly supports making genomic data available for future diagnostic purposes... However, this raises important considerations around data provenance, data quality, storage infrastructure, privacy protections, and consent processes..." },
+                    { id: "H53", decision_point: "53. Should the ability to recontact parents, and eventually the child, be maintained, and if so, how?", summary: "The ability to recontact... is viewed as crucial for multiple purposes including research participation, variant reclassification, disclosure of adult-onset conditions... The main challenges involve establishing robust systems for maintaining contact over long periods..." }
+                ]
+            },
+            {
+                category: "I. Evaluation & Governance",
+                id: "governance",
+                points: [
+                    { id: "I54", decision_point: "54. How should project success be defined and measured?", summary: "The literature emphasizes that defining and measuring success... requires balancing multiple dimensions including clinical utility, cost-effectiveness, equity of access, and psychosocial impacts on families. ...the need for comprehensive evaluation frameworks that go beyond traditional clinical outcomes..." },
+                    { id: "I55", decision_point: "55. What governance system should be put in place for managing emerging issues?", summary: "The literature emphasizes that implementing gNBS requires comprehensive governance systems that can address multiple challenges including ethical oversight, stakeholder engagement, data sharing, quality assurance, and cross-jurisdictional coordination." },
+                    { id: "I56", decision_point: "56. How can transparency be assured in decision-making processes?", summary: "The literature emphasizes that transparency... is fundamental for maintaining public trust... and should encompass clear documentation of criteria for condition selection, program financing, and benefit distribution." },
+                    { id: "I57", decision_point: "57. What are the priorities for cross-jurisdiction policy consistency...?", summary: "The literature strongly emphasizes that significant variation exists in newborn screening programs across jurisdictions... A key tension exists between respecting local/state autonomy... and the need for standardization to ensure equitable access..." },
+                    { id: "I58", decision_point: "58. How should sustainability of any ongoing implementation be planned for...?", summary: "Implementing gNBS requires careful consideration of long-term financial sustainability and system capacity... Programs must balance the decreasing costs of sequencing... against the substantial infrastructure and workforce requirements..." },
+                    { id: "I59", decision_point: "59. How should closing the project be managed?", summary: "Managing project closure... requires careful consideration of both sustaining established screening programs and planning for future capacity. Key considerations include maintaining public trust in traditional newborn screening programs..." }
+                ]
+            }
+        ];
+
+        // --- EXPORT FUNCTIONS ---
+
+        /**
+         * Sanitizes text for TSV output by removing tabs and newlines.
+         */
+        function sanitizeForTSV(text) {
+            if (!text) return '';
+            return text.replace(/\s+/g, ' ').replace(/\t/g, ' ').trim();
+        }
+
+        /**
+         * Gathers all notes and exports as a TSV file.
+         */
+        function exportTSV() {
+            let tsvContent = "ID\tDecision Point\tYour Note\n";
+            const rows = [];
+
+            decisionPointsData.forEach(category => {
+                category.points.forEach(point => {
+                    const noteKey = `note-${point.id}`;
+                    const noteValue = localStorage.getItem(noteKey) || '';
+                    const decisionText = sanitizeForTSV(point.decision_point);
+                    const noteText = sanitizeForTSV(noteValue);
+                    rows.push(`${point.id}\t${decisionText}\t${noteText}`);
+                });
+            });
+
+            tsvContent += rows.join('\n');
+            
+            const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "gnbs_elsi_notes.tsv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * Helper function to add wrapped text to a jsPDF document.
+         * Handles page breaks.
+         */
+        function addWrappedText(doc, text, x, y, maxWidth, options = {}) {
+            const { fontSize = 10, fontStyle = 'normal', color = [0, 0, 0] } = options;
+            doc.setFontSize(fontSize);
+            doc.setFont('helvetica', fontStyle);
+            doc.setTextColor(color[0], color[1], color[2]);
+            
+            const lines = doc.splitTextToSize(text, maxWidth);
+            let currentY = y;
+            
+            lines.forEach(line => {
+                if (currentY > 280) { // Margin for page break
+                    doc.addPage();
+                    currentY = 20; // Reset Y to top margin
+                }
+                doc.text(line, x, currentY);
+                currentY += (fontSize * 0.4); // Adjust line height
+            });
+            
+            return currentY; // Return the new Y position
+        }
+
+        /**
+         * Gathers all decision points, summaries, and notes and exports as a PDF.
+         */
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const margin = 15;
+            const maxLineWidth = doc.internal.pageSize.getWidth() - (margin * 2);
+            let currentY = 20;
+
+            // Title
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text("gNBS ELSI Navigator - Report", margin, currentY);
+            currentY += 10;
+            
+            // Subtitle
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Exported on: ${new Date().toLocaleDateString()}`, margin, currentY);
+            currentY += 15;
+
+            // Iterate over all data
+            decisionPointsData.forEach(category => {
+                // Check for page break before category title
+                if (currentY > 260) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+
+                // Category Title
+                currentY = addWrappedText(doc, category.category, margin, currentY, maxLineWidth, {
+                    fontSize: 14,
+                    fontStyle: 'bold',
+                    color: [67, 56, 202] // indigo-700
+                });
+                currentY += 5; // Padding after category title
+
+                category.points.forEach(point => {
+                    const noteKey = `note-${point.id}`;
+                    const noteValue = localStorage.getItem(noteKey) || 'No notes added.';
+
+                    // Check for page break before new point
+                    if (currentY > 250) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
+
+                    // Decision Point
+                    currentY = addWrappedText(doc, point.decision_point, margin, currentY, maxLineWidth, {
+                        fontSize: 11,
+                        fontStyle: 'bold'
+                    });
+                    currentY += 2; // Padding
+
+                    // Summary
+                    currentY = addWrappedText(doc, "Summary: " + point.summary, margin + 5, currentY, maxLineWidth - 5, {
+                        fontSize: 9,
+                        fontStyle: 'italic',
+                        color: [100, 116, 139] // slate-500
+                    });
+                    currentY += 3; // Padding
+
+                    // Note
+                    currentY = addWrappedText(doc, "Your Note: " + noteValue, margin + 5, currentY, maxLineWidth - 5, {
+                        fontSize: 9,
+                        fontStyle: 'normal'
+                    });
+                    currentY += 8; // Padding between decision points
+                });
+            });
+
+            // Save the PDF
+            doc.save('gnbs_elsi_report.pdf');
+        }
+
+        /**
+         * Clears all notes from localStorage.
+         */
+        function clearAllNotes() {
+            decisionPointsData.forEach(category => {
+                category.points.forEach(point => {
+                    const noteKey = `note-${point.id}`;
+                    localStorage.removeItem(noteKey);
+                });
+            });
+            console.log("All notes cleared from localStorage.");
+        }
+
+
+        // --- APPLICATION LOGIC ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            const clearModal = document.getElementById('clear-modal');
+            const clearNotesBtn = document.getElementById('clear-notes');
+            const cancelClearBtn = document.getElementById('cancel-clear');
+            const confirmClearBtn = document.getElementById('confirm-clear');
+            
+            let currentCategoryId = decisionPointsData[0].id; // Keep track of active category
+
+            // --- Tab Switching Logic ---
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.add('hidden'));
+
+                    // Activate clicked
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.target).classList.remove('hidden');
+                });
+            });
+
+            // --- 1. Load Strategic Questions (Accordion) ---
+            const strategicContainer = document.getElementById('strategic-questions-container');
+            strategicQuestions.forEach((item, index) => {
+                const element = document.createElement('div');
+                element.className = 'bg-white rounded-lg shadow-md';
+                element.innerHTML = `
+                    <button class="accordion-button w-full text-left p-5 font-semibold text-gray-700 flex justify-between items-center transition hover:bg-gray-50 rounded-lg">
+                        <span>${index + 1}. ${item.question}</span>
+                        <svg class="w-5 h-5 transition-transform transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-5 border-t border-gray-200">
+                            <h4 class="font-semibold text-gray-600 mb-2">Considerations:</h4>
+                            <p class="text-gray-600 leading-relaxed">${item.considerations}</p>
+                        </div>
+                    </div>
+                `;
+                strategicContainer.appendChild(element);
+            });
+
+            // Accordion click logic
+            strategicContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.accordion-button');
+                if (button) {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('svg');
+                    content.classList.toggle('open');
+                    icon.classList.toggle('rotate-180');
+                }
+            });
+
+            // --- 2. Load Decision Points ---
+            const categoryList = document.getElementById('category-list');
+            const pointsContainer = document.getElementById('decision-points-container');
+
+            // Function to load points for a category
+            function loadDecisionPoints(categoryId) {
+                currentCategoryId = categoryId; // Update current category ID
+                // Find category data
+                const category = decisionPointsData.find(c => c.id === categoryId);
+                if (!category) return;
+
+                pointsContainer.innerHTML = ''; // Clear existing points
+
+                // Populate points
+                category.points.forEach(point => {
+                    const noteKey = `note-${point.id}`;
+                    const savedNote = localStorage.getItem(noteKey) || '';
+
+                    const pointCard = document.createElement('div');
+                    pointCard.className = 'bg-white p-6 rounded-lg shadow-lg';
+                    pointCard.innerHTML = `
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${point.decision_point}</h3>
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-sm text-blue-600 mb-1">Summary of Existing Literature</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed">${point.summary}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">Your Notes</h4>
+                            <textarea
+                                id="${noteKey}"
+                                class="note-textarea w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows="4"
+                                placeholder="Enter your notes here... (Saved to your browser)"
+                            >${savedNote}</textarea>
+                        </div>
+                    `;
+                    pointsContainer.appendChild(pointCard);
+                });
+            }
+
+            // Function to save notes
+            function saveNote(e) {
+                if (e.target.classList.contains('note-textarea')) {
+                    localStorage.setItem(e.target.id, e.target.value);
+                }
+            }
+            
+            // Add debounced save listener to notes container
+            let saveTimeout;
+            pointsContainer.addEventListener('input', (e) => {
+                if (e.target.classList.contains('note-textarea')) {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        localStorage.setItem(e.target.id, e.target.value);
+                    }, 300); // Save 300ms after user stops typing
+                }
+            });
+
+
+            // Populate category list
+            decisionPointsData.forEach((category, index) => {
+                const button = document.createElement('button');
+                button.className = 'category-button w-full text-left p-3 rounded-md font-medium text-gray-600 hover:bg-gray-200 transition';
+                button.textContent = category.category;
+                button.dataset.target = category.id;
+
+                if (index === 0) {
+                    button.classList.add('active'); // Set first as active
+                }
+
+                button.addEventListener('click', () => {
+                    // Update active button
+                    document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    // Load points
+                    loadDecisionPoints(category.id);
+                });
+
+                categoryList.appendChild(button);
+            });
+
+            // --- 3. Attach Export Event Listeners ---
+            document.getElementById('export-tsv').addEventListener('click', exportTSV);
+            document.getElementById('export-pdf').addEventListener('click', exportPDF);
+
+            // --- 4. Attach Modal Event Listeners ---
+            clearNotesBtn.addEventListener('click', () => {
+                clearModal.classList.add('visible');
+            });
+
+            cancelClearBtn.addEventListener('click', () => {
+                clearModal.classList.remove('visible');
+Two            });
+
+            confirmClearBtn.addEventListener('click', () => {
+                clearAllNotes();
+                clearModal.classList.remove('visible');
+                // Reload the current category view to show the cleared textareas
+                loadDecisionPoints(currentCategoryId);
+            });
+
+
+            // --- 5. Initial Load ---
+            loadDecisionPoints(currentCategoryId); // Load first category by default
+        });
+    </script>
+</body>
+</html>
+
